@@ -1,32 +1,83 @@
-console.log("Olá Agadê!")
+console.log("Olá Agade!")
 
-const bt_listar = document.getElementById('bt-listar');
-const input_package = document.getElementById('package');
+const btn_listar             = $('#bt-listar');
+const input_url              = $('#input-url');
+const lista_package_resource = $('#lista-package-resource');
 
-bt_listar.addEventListener('click', async function buscar_package() {
-    
-    const input_url = input_package.value.trim();
-    
-    if(!input_url){
+btn_listar.on('click', async function listar() {
 
-        alert("Por favor insira uma url valida!");
+    const url = input_url.val().trim();
+
+    if (!url) {
+        alert("Por favor insira uma URL");
         return;
     }
 
-    const url_obj = new URL(input_url);
+    const url_obj  = new URL(url);
     const api_base = url_obj.origin + '/api/3/action';
-    
-    try {
-        
-        const busca_lista = await fetch(`${api_base}/package_list`);
-        const json_lista = await busca_lista.json()
-        const package_id = json_lista.result;
 
-        console.log(package_id)
-        console.log("deu certo :)")
+    lista_package_resource.html('<p>Carregando...</p>');
+
+    try {
+        const busca_lista = await fetch(`${api_base}/package_list`);
+        const json_lista  = await busca_lista.json();
+        const package_ids = json_lista.result;
+
+        lista_package_resource.empty();
+        const accordion_el = $('<div id="accordion"></div>');
+        lista_package_resource.append(accordion_el);
+
+        for(const pkg_id of package_ids){
+
+            const busca_detalhes = await fetch(`${api_base}/package_show?id=${pkg_id}`);
+            const json_detalhes  = await busca_detalhes.json();
+            const pkg            = json_detalhes.result;
+
+            const titulo = $(`
+                <h3>
+                    <span>${pkg.title}</span>
+                </h3>
+            `);
+
+            const conteudo = $(`
+                <div>
+                    <button type="button" class="btn-selecionar-todos">Selecionar todos os resources</button>
+                    <ul>
+                        ${pkg.resources.map(r => `
+                            <li>
+                                <input type="checkbox" name="resources[]" value="${r.id}">
+                                <span class="resource-nome">${r.name} (${r.format})</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `);
+
+            conteudo.find('.btn-selecionar-todos').on('click', function(){
+                const btn_todos      = $(this);
+                const checkboxes     = conteudo.find('input[type=checkbox]');
+                const todos_marcados = checkboxes.length === checkboxes.filter(':checked').length;
+
+                checkboxes.prop('checked', !todos_marcados);
+                btn_todos.text(todos_marcados ? 'Selecionar todos' : 'Desmarcar todos');
+            });
+
+            accordion_el.append(titulo);
+            accordion_el.append(conteudo);
+
+        }
+
+        $('#accordion').accordion({
+            collapsible: true,
+            active: false
+        });
+
+        console.log(package_ids);
+        console.log("deu certo :)");
 
     } catch (error) {
-        console.log("Deu ruim :(")
+        console.log("deu ruim!");
+        console.log(error.message);
     }
 });
 

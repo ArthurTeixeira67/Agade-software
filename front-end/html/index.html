@@ -37,17 +37,23 @@
         </div>
 
         <!--Campo p/ chamar a API do CKAN-->
-        <label for="package" class="container-form2">Url:</label>
+        <label for="input-url" class="container-form2">Url:</label>
 
         <div class="container-form2">
-            <input type="url" id="package">
+            <input type="url" id="input-url">
             <button type="button" id="bt-listar" class="btn">Listar package's</button>
+        </div>
+
+        <div id="lista-package-resource">
+            <!--Campo p/ a lista de package e resources id-->
         </div>
 
         <!--Submeter o formulário e os resource's id selecionados-->
         <input type="submit" id="submit" class="container-form1 btn" value="Criar bases e fontes">
     </form>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="../js/script.js"></script>
 </body>
 </html>
