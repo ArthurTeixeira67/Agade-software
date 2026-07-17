@@ -13,12 +13,13 @@ btn_listar.on('click', async function listar() {
         return;
     }
 
+    const url_obj  = new URL(url);
+    const api_base = url_obj.origin + '/api/3/action';
+
     lista_package_resource.html('<p>Carregando...</p>');
 
     try {
-        const busca_lista = await fetch(
-            `script.php?acao=listarPackages&url=${encodeURIComponent(url)}`
-        );
+        const busca_lista = await fetch(`${api_base}/package_list`);
         const json_lista  = await busca_lista.json();
         const package_ids = json_lista.result;
 
@@ -28,9 +29,7 @@ btn_listar.on('click', async function listar() {
 
         for(const pkg_id of package_ids){
 
-            const busca_detalhes = await fetch(
-                `script.php?acao=packageShow&url=${encodeURIComponent(url)}&id=${encodeURIComponent(pkg_id)}`
-            );
+            const busca_detalhes = await fetch(`${api_base}/package_show?id=${pkg_id}`);
             const json_detalhes  = await busca_detalhes.json();
             const pkg            = json_detalhes.result;
 
