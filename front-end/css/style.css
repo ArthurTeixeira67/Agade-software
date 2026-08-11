@@ -3,16 +3,19 @@
     padding: 0;
 }
 
+/* estilo do titulo */
 .title{
     margin-top: 20px;
     margin-left: 20px;
 }
 
+/* deixa os input's da base e busca lado a lado */
 .formulario{
     display: flex;
     flex-direction: row;
 }
 
+/* formatação e tamanho dos input's da base */
 .inf{
     display: flex;
     flex-direction: column;
@@ -23,6 +26,7 @@
     gap: 8px;
 }
 
+/* formatação e tamanho do input de busca dos package's e resource's */
 .list{
     display: flex;
     flex-direction: column;
@@ -30,6 +34,7 @@
     gap: 8px;
 }
 
+/* formatacao e tamanho dos botões */
 .btn{
     padding: 1px;
     width: 130px;
