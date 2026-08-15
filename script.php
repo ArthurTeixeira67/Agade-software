@@ -1,5 +1,7 @@
 <?php
 
+require_once 'config.php';
+
 header('Content-Type: application/json');
 
 $acao = $_POST['acao'] ?? $_GET['acao'] ?? '';
@@ -12,6 +14,10 @@ switch ($acao) {
 
     case 'packageShow':
         packageShow();
+        break;
+
+    case 'criarBasesFontes':
+        criarBasesFontes($conn);
         break;
 
     default:
@@ -106,6 +112,10 @@ function requisicaoCKAN(string $url){
 
     return json_decode($json, true);
 
+}
+
+function criarBasesFontes($conn) {
+    
 }
 
 ?>

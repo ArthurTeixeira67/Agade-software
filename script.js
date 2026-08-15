@@ -1,40 +1,12 @@
 console.log("Olá Agadê!");
 
-$("form").on("submit", function(event) {
-    let valido = true;
-
-    const campos = [
-        $("#id_base"),
-        $("#nome"),
-        $("#descricao"),
-        $("#tabela_destino"),
-        $("#fonte"),
-        $("#fonte_link"),
-        $("#fonte_api")
-    ];
-
-    campos.forEach(function(campo) {
-        if (!campo.val().trim()) {
-            campo.addClass("campo-invalido");
-            valido = false;
-        }
-    });
-
-    if (!valido) {
-        event.preventDefault();
-        alert("Preencha todos os campos obrigatórios.");
-    }
-});
-
-$("form input, form textarea").on("input", function() {
-    if ($(this).val().trim()) {
-        $(this).removeClass("campo-invalido");
-    }
-});
-
 const btn_listar = $("#bt-listar");
 const input_url = $("#input-url");
 const lista_package_resource = $("#lista-package-resource");
+const busca_package = $(".busca-package");
+const input_busca_package = $("#input-busca-package");
+let packages_carregados = [];
+let url_atual = "";
 
 btn_listar.on("click", carregarPackages);
 
@@ -56,7 +28,10 @@ function carregarPackages() {
         },
 
         function(resposta) {
+            packages_carregados = resposta.result;
+            url_atual = url;
             montarAccordion(resposta.result, url);
+            busca_package.show();
         },
 
         "json"
@@ -152,12 +127,19 @@ function carregarResources(package_id, painel, url) {
             const lista = $("<ul></ul>");
 
             pkg.resources.forEach(function(resource) {
+                console.log(resource);
+                
                 lista.append(`
                     <li>
                         <input
                             type="checkbox"
                             name="resources[]"
-                            value="${resource.id}">
+                            value="${resource.id}"
+                            data-package-id="${resource.package_id}"
+                            data-url="${resource.url}"
+                            data-nome="${resource.name}"
+                            data-ultima-atualizacao="${resource.last_modified}"
+                            data-delimitador=";">
 
                         <span>
                             ${resource.name} (${resource.format})
@@ -224,3 +206,80 @@ function carregarResources(package_id, painel, url) {
         );
     });
 }
+
+input_busca_package.on("input", function() {
+    const busca = $(this).val().toLowerCase().trim();
+
+    const packages_filtrados = packages_carregados.filter(function(package_id) {
+        return package_id.toLowerCase().includes(busca);
+    });
+
+    montarAccordion(packages_filtrados, url_atual);
+});
+
+$("#submit").on("click", function(event) {
+
+    event.preventDefault();
+
+    const campos = [
+        $("#id_base"),
+        $("#nome"),
+        $("#descricao"),
+        $("#tabela_destino"),
+        $("#fonte"),
+        $("#fonte_link"),
+        $("#fonte_api")
+    ];
+
+    let valido = true;
+
+    campos.forEach(function(campo) {
+
+        if (!campo.val().trim()) {
+            campo.css("border", "2px solid red");
+            valido = false;
+        }
+
+    });
+
+    if (!valido) {
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+    }
+
+    const dados = {
+        id_base: $("#id_base").val(),
+        nome: $("#nome").val(),
+        descricao: $("#descricao").val(),
+        tabela_destino: $("#tabela_destino").val(),
+        fonte: $("#fonte").val(),
+        fonte_link: $("#fonte_link").val(),
+        fonte_api: $("#fonte_api").val(),
+        resources: []
+    };
+
+    $("#lista-package-resource input[name='resources[]']:checked").each(function() {
+
+        const checkbox = $(this);
+
+        dados.resources.push({
+            resource_id: checkbox.val(),
+            package_id: checkbox.data("package-id"),
+            url: checkbox.data("url"),
+            nome: checkbox.data("nome"),
+            ultima_atualizacao: checkbox.data("ultima-atualizacao").substring(0, 10),
+            delimitador: checkbox.data("delimitador")
+        });
+
+    });
+
+    console.log(dados);
+
+});
+
+$("#id_base, #nome, #descricao, #tabela_destino, #fonte, #fonte_link, #fonte_api").on("input", function() {
+
+    if ($(this).val().trim()) {
+        $(this).css("border", "");
+    }
+});
