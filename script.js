@@ -59,7 +59,11 @@ function carregar_packages(){
     lista_package.html(`Carregando...`);
 
     //aqui ele vai buscar os package's
-    
+    $.post(
+        //destino da requisição
+        "script.php",
+        
+    );
 };
 
 btn_package.on("click", carregar_packages);
