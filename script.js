@@ -59,6 +59,7 @@ function carregar_packages(){
     lista_package.html(`Carregando...`);
 
     //aqui ele vai buscar os package's
+    
 };
 
 btn_package.on("click", carregar_packages);
