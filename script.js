@@ -33,15 +33,17 @@ $("#submit_form").click(function(event) {
 
     if(!valido) {
         event.preventDefault();
-        alert(`Preencha todos os campos obrigatórios`);
+        alert(`Preencha todos os campos obrigatórios para a base de dados.`);
     }
 
 });
 
+// função p/ verificar se a url foi preenchida.
 $("#btn_package").click(function(event){
 
     if(!input_url.val()) {
         input_url.addClass("campo-invalido")
+        alert(`preencha o campo com alguma url.`);
         event.preventDefault();
 
     }
