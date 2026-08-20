@@ -59,5 +59,31 @@ $("form input, form textarea").add(input_url).on("input", function() {
 
 });
 
+btn_listar_package.on("click", carregarPackages);
+
+// função p/ pegar oque foi digitado na url e trazer os package's pra cá.
+function carregarPackages() {
+
+    const url = input_url.val().trim();
+    lista_package.html("<p>Carregando...</p>")
+
+    //chamada para o arquivo 'script.php' fazer a requisição. 
+    $.post(
+        "script.php", {acao: listarPackages, url: url},
+        
+        function(resposta) { // caso a requisição de certo
+            montarAccordion(resposta.result, url);
+        },
+
+        "json"
+    ).fail(function(error) { // caso a requisição de ruim
+
+        lista_package.html("A requisição falhou :(</p>");
+        console.log(error);
+
+    });
+
+};
+
 
 
