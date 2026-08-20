@@ -1,70 +1,61 @@
 console.log(`Olá agadê!`);
 
+// seleciona no html respectivamente: campo 'url', botão 'listar package's, section onde os package's serão listados.
+const input_url = $("#input_url");
+const btn_listar_package = $("#btn_package");
+const lista_package = $("#lista_package");
 
-// pega oque foi digitado no formulário e verifica campos vazios
-$("form").on("submit", function(event){
-
+// função p/ verificar se todos os campos foram preenchidos.
+$("#submit_form").click(function(event) {
+    
+    // flag p/ verificar
     let valido = true;
 
-    const campos_etl = [
+    const campos = [
         $("#id_base"),
         $("#nome"),
         $("#descricao"),
         $("#tabela_destino"),
-        $("#tabela_destino"),
         $("#fonte"),
         $("#fonte_link"),
-        $("#fonte_api"),
+        $("#fonte_api")
     ];
 
-    campos_etl.forEach(function(campo){
+    campos.forEach(function(campo) {
 
-        if(!campo.val()){
+        // adiciona a classe 'campo invalido' caso o campo esteja vazio.
+        if(!campo.val()) {
             campo.addClass("campo-invalido");
-            const span_erro = $("span_erro");
-            span_erro.html = (`Por favor preencha todos os campos`)
-            valido = false;
-        };
+            valido = false
+        }
 
     });
 
-    if(!valido){
+    if(!valido) {
         event.preventDefault();
-        
-    };
+        alert(`Preencha todos os campos obrigatórios`);
+    }
 
 });
 
-// retira a borda vermelha caso o campo seja selecionado denovo ou preenchido
-$("input, textarea").on("input", function(){
-    if($(this).val()){
-        $(this).removeClass("campo-invalido");
-    };
+$("#btn_package").click(function(event){
+
+    if(!input_url.val()) {
+        input_url.addClass("campo-invalido")
+        event.preventDefault();
+
+    }
+
 });
 
-// variaveis p/: botão de listar package's, input "URL" e section onde será carregado os package's
-const btn_package = $("#btn_package");
-const url_package = $("#url_package");
-const lista_package = $("#lista_package");
+// função p/ remover o campo invalido caso ele seja pressionado ou preenchido.
+$("form input, form textarea").add(input_url).on("input", function() {
 
-// função p/ busca e carregamento dos package's
-function carregar_packages(){
-    const url = url_package.val().trim();
+    if($(this).val()) {
+        $(this).removeClass("campo-invalido")
+    }
 
-    if (!url){
-        alert(`Por favor insira uma URL valida`);
-        return;
-    };
+});
 
-    lista_package.html(`Carregando...`);
 
-    //aqui ele vai buscar os package's
-    $.post(
-        //destino da requisição
-        "script.php",
-        
-    );
-};
-
-btn_package.on("click", carregar_packages);
 
