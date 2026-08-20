@@ -40,10 +40,8 @@
     width: 130px;
 }
 
+/* estilo caso um campo de preenchimento esteja invalido*/
 .campo-invalido {
     border: 2px solid red;
 }
 
-.span-erro {
-    color: red;
-}
