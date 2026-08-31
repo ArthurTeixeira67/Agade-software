@@ -1,9 +1,10 @@
+/* Regras gerais para toda a página */
 *{
     margin: 0;
     padding: 0;
 }
 
-/* estilo do titulo */
+/* Estilo do titulo */
 .title{
     margin-top: 20px;
     margin-left: 20px;
@@ -15,33 +16,31 @@
     flex-direction: row;
 }
 
-/* formatação e tamanho dos input's da base */
+/* tamanho e formatação dos campos da base */
 .inf{
     display: flex;
     flex-direction: column;
-    max-width: 300px;
     margin-top: 20px;
     margin-left: 20px;
-    margin-right: 100px;
-    gap: 8px;
+    margin-right:50px;
+    gap: 5px;
 }
 
-/* formatação e tamanho do input de busca dos package's e resource's */
+/* tamanho e formatação do input de busca dos package's e resource's */
 .list{
     display: flex;
     flex-direction: column;
     margin-top: 20px;
-    gap: 8px;
+    gap: 5px;
 }
 
-/* formatacao e tamanho dos botões */
+/* tamanho e formatação dos botões */
 .btn{
     padding: 1px;
     width: 130px;
 }
 
-/* estilo caso um campo de preenchimento esteja invalido*/
-.campo-invalido {
+/* estilo caso o preenchimento de um campo seja invalido */
+.campo-invalido{
     border: 2px solid red;
 }
-

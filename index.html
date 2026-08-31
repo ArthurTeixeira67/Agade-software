@@ -4,59 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Agadê Software</title>
+    <title>Agade Software</title>
 </head>
 <body>
-    <h1 class="title">Agadê Software</h1>
+    <h1 class="title">Agade Software</h1>
 
     <form action="" class="form">
-      
-      <!--div c/ os dados p/ etl.bases-->
-      <div class="inf">
 
-        <label for="id_base">id_base:</label>
-        <input type="number" id="id_base">
+        <!-- div c/ os dados p/ etl.bases -->
+        <div class="inf">
+            <label for="id_base">id_base:</label>
+            <input type="number" id="id_base">
 
-        <label for="nome">nome:</label>
-        <input type="text" id="nome">
-        
-        <label for="descricao">descricao:</label>
-        <textarea id="descricao" cols="30" rows="5"></textarea>
+            <label for="nome">nome:</label>
+            <input type="text" id="nome">
 
-        <label for="tabela_destino">tabela_destino:</label>
-        <input type="text" id="tabela_destino">
+            <label for="descricao">descrição:</label>
+            <textarea id="descricao" cols="30" rows="5"></textarea>
 
-        <label for="fonte">fonte:</label>
-        <input type="text" id="fonte">
-        
-        <label for="fonte_link">fonte_link:</label>
-        <input type="url" id="fonte_link">
+            <label for="tabela_destino">tabela_destino:</label>
+            <input type="text" id="tabela_destino">
 
-         <label for="fonte_api">fonte_api:</label>
-        <input type="url" id="fonte_api">
+            <label for="fonte">fonte:</label>
+            <input type="text" id="fonte">
 
-        <span class="span-erro"></span>
-      </div>
+            <label for="fonte_link">fonte_link:</label>
+            <input type="url" id="fonte_link">
 
-      <!--div p/ busca dos package's e resource's -->
-      <div class="list">
-
-        <label for="url_package">URL:</label>
-        <div>
-            <input type="text" id="input_url">
-            <button class="btn" id="btn_package">listar package's</button>
-
-            <!--accordion dos package's-->
-            <section id="lista_package"></section>
-
-            <input type="submit" id="submit_form" class="btn" value="Criar bases e fontes">
+            <label for="fonte_api">fonte_api:</label>
+            <input type="url" id="fonte_api">
         </div>
+        
+        <!-- div p/ busca dos package's e resource's -->
+         <div class="list">
+            <label for="url_package">Url:</label>
 
-      </div>
+            <div>
+                <input type="text" id="url_package">
+                <button class="btn" id="btn_package">Listar package's</button>
+
+                <!-- accordion dos package's -->
+
+                <input type="submit" id="submit_form" class="btn" value="Criar bases e fontes">
+            </div>
+         </div>
     </form>
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>
