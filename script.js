@@ -13,6 +13,16 @@ const campos = [
     $("#fonte_api")
 ];
 
+// caso o botão 'Listar package's' seja clicado.
+$("#btn_package").on("click", function(event) {
+
+    if(!url_package.val()){
+        url_package.addClass("campo-invalido");
+        alert("Digite uma URL!")
+    }
+
+});
+
 // caso o botão 'Criar bases e fontes' seja clicado.
 $("form").on("submit", function(event) {
     // flag para validar campos.
@@ -32,4 +42,5 @@ $("form").on("submit", function(event) {
     }
 
 });
+
 
