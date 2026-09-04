@@ -43,4 +43,15 @@ $("form").on("submit", function(event) {
 
 });
 
+// remove as classes de 'campo-invalido' caso o campo seja preenchido posteriormente
+$("form input, form textarea").on("input", function(event) {
+
+    const campo = $(this)
+
+    if(campo.val()) {
+        campo.removeClass("campo-invalido");
+    }
+
+});
+
 
