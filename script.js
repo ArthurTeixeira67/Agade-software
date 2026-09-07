@@ -45,24 +45,43 @@ $("form input, form textarea").on("input", function(event) {
 
 });
 
+// funcao p/ carregar os package's depois que inserida a url
+function carregar_packages() {
 
-// caso o botão 'Criar bases e fontes' seja clicado
-$("form").on("submit", function(event) {
-    if (!campo_vazio(campos, "Preencha todos os campos obrigatórios!")) {
-        event.preventDefault();
+    if(!campo_vazio([url_package], "Digite uma URL!")) {
+        return;
     }
 
-});
+    const url = url_package.val().trim();
+
+    accordion.html("<p>Carregando...</p>")
+
+    $.post(
+
+        "script.php",
+        {
+            acao: "listar_packages",
+            url: url
+        },
+        function(resposta) {
+           if(!resposta.sucess) {
+            accordion.html("<p>Erro ao carregar os package's.</p>")
+            console.log(resposta.error);
+            return;
+           }
+           montar_accordion(resposta.result, url);
+        },
+        "json"
+
+    ).fail(function(xhr, status, error) {
+
+        console.log("Erro ao carregar os package's");
+        console.log(error);
+        accordion.html("<p>Erro ao carregar os packages.</p>")
+
+    });
+
+};
 
 // caso o botão 'Listar package's' seja clicado
-$("#btn_package").on("click", function(event) {
-
-    if (!campo_vazio([url_package], "Digite uma URL!")) {
-    
-        return;
-
-    }
-
-   accordion.html("<p>Carregando...</p>");
-
-});
+btn_package.on("click", carregar_packages);
