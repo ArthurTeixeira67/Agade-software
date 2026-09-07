@@ -45,8 +45,8 @@ $("form input, form textarea").on("input", function(event) {
 
 });
 
-// funcao p/ carregar os package's depois que inserida a url
-function carregar_packages() {
+// funcao p/ listar os package's depois que inserida a url
+function listar_packages() {
 
     if(!campo_vazio([url_package], "Digite uma URL!")) {
         return;
@@ -84,4 +84,4 @@ function carregar_packages() {
 };
 
 // caso o botão 'Listar package's' seja clicado
-btn_package.on("click", carregar_packages);
+btn_package.on("click", listar_packages);
