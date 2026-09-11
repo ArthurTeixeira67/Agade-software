@@ -1,26 +1,36 @@
 console.log("Olá Agadê!");
 
+// guarda partes do html úteis para o programa em variáveis
 const btn_listar = $("#bt-listar");
 const input_url = $("#input-url");
 const lista_package_resource = $("#lista-package-resource");
 const busca_package = $(".busca-package");
 const input_busca_package = $("#input-busca-package");
-let packages_carregados = [];
-let url_atual = "";
 
+// array para salvar os packages carregados e variável para url
+let packages_carregados = [];
+let url = "";
+
+// chama a função que carrega os packages
 btn_listar.on("click", carregarPackages);
 
+// função que carrega os packages
 function carregarPackages() {
-    const url = input_url.val().trim();
+    // guarda a url digitada pelo usuário
+    url = input_url.val();
 
+    // verifica se o usuário digitou uma url
     if (!url) {
         alert("Por favor insira uma URL.");
         return;
     }
 
+    // mensagem temporária enquanto carrega os packages
     lista_package_resource.html("<p>Carregando...</p>");
 
+    // envia requisição para o php
     $.post(
+        // envia a ação a ser feita e a url digitada
         "script.php",
         {
             acao: "listarPackages",
@@ -28,14 +38,17 @@ function carregarPackages() {
         },
 
         function(resposta) {
+            // guarda o resultado da requisição ckan
             packages_carregados = resposta.result;
-            url_atual = url;
+            // monta os accordeons com o resultado e mostra a caixa de busca
             montarAccordion(resposta.result, url);
             busca_package.show();
         },
 
+        // informa o js para tratar a resposta como json
         "json"
 
+    // exibe mensagem de erro caso não consiga contatar o php
     ).fail(function(xhr, status, error) {
         console.log("Erro ao carregar packages");
         console.log(error);
@@ -47,12 +60,16 @@ function carregarPackages() {
 }
 
 function montarAccordion(package_ids, url) {
+    // limpa o local que os accordions aparecem (caso haja uma outra requisição)
     lista_package_resource.empty();
 
+    // cria e guarda a div dos accordions
     const accordion = $('<div id="accordion"></div>');
 
+    // adiciona os accordions na pagina
     lista_package_resource.append(accordion);
 
+    // para cada package carregado, pega o nome e o id
     package_ids.forEach(function(package_id) {
         const titulo = $(`
             <h3 data-id="${package_id}">
@@ -60,26 +77,31 @@ function montarAccordion(package_ids, url) {
             </h3>
         `);
 
+        // conteudo dos accordions enquanto o php carrega os resources
         const conteudo = $(`
             <div>
                 <p>Carregando resources...</p>
             </div>
         `);
 
+        // adiciona o nome e o conteudo na div
         accordion.append(titulo);
         accordion.append(conteudo);
     });
 
+    // configura como os accordions vão aparecer (fechados e do tamanho do conteúdo)
     $("#accordion").accordion({
         collapsible: true,
         active: false,
         heightStyle: "content",
 
+        // quando um accordion for aberto:
         activate: function(event, ui) {
+            // salva seu id
             if (ui.newHeader.length) {
                 const package_id =
                     ui.newHeader.data("id");
-
+                // chama a função que carrega os resources
                 carregarResources(
                     package_id,
                     ui.newPanel,
@@ -90,12 +112,16 @@ function montarAccordion(package_ids, url) {
     });
 }
 
+// função que carrega os resources do package selecionado
 function carregarResources(package_id, painel, url) {
+    // evita fazer a mesma requisição novamente
     if (painel.data("carregado")) {
         return;
     }
 
+    // envia a requisição para o php
     $.post(
+        // envia a ação, a url e o id do package selecionado
         "script.php",
         {
             acao: "packageShow",
@@ -104,7 +130,7 @@ function carregarResources(package_id, painel, url) {
         },
 
         function(resposta) {
-            //console.log(resposta);
+            console.log(resposta);
 
             if (!resposta.success) {
                 painel.html(
@@ -213,7 +239,7 @@ input_busca_package.on("input", function() {
         return package_id.toLowerCase().includes(busca);
     });
 
-    montarAccordion(packages_filtrados, url_atual);
+    montarAccordion(packages_filtrados, url);
 });
 
 $("#submit").on("click", function(event) {

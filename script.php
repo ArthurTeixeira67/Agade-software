@@ -1,17 +1,19 @@
 <?php
 
+// faz o php mostrar erros nas respostas caso haja algum erro
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// chama o arquivo que faz a conexão com o banco de dados
 require_once 'config.php';
 
+// informa que a resposta será enviada em json
 header('Content-Type: application/json');
 
-// extract(_POST);
-// $acao
+// coleta e guarda os valores enviados pelo js
+extract($_POST);
 
-$acao = $_POST['acao'] ?? $_GET['acao'] ?? '';
-
+// chama a função que o js mandar
 switch ($acao) {
 
     case 'listarPackages':
@@ -26,6 +28,7 @@ switch ($acao) {
         criarBasesFontes($conn);
         break;
 
+    // caso a ação seja inválida (ver se pode tirar ae)
     default:
         echo json_encode([
             "erro" => "Ação inválida."
@@ -33,89 +36,76 @@ switch ($acao) {
         break;
 }
 
-function listarPackages(){
+// função que vai listar os packages
+function listarPackages(){  
+    // guarda as variáveis do post dentro da função
+    extract($_POST);
 
-    $url = $_POST['url'] ?? $_GET['url'] ?? '';
+    // monta a url da api do ckan que lista os packages
+    $api = $url . '/api/3/action/package_list';
 
-    if(empty($url)){
-        echo json_encode([
-            "erro" => "URL não informada."
-        ]);
-        return;
-    }
-
-    $url_obj = parse_url($url);
-
-    $api = $url_obj['scheme'] .
-           '://' .
-           $url_obj['host'] .
-           '/api/3/action/package_list';
-
+    // chama a função que faz a requisição e guarda o resultado
     $resultado = requisicaoCKAN($api);
 
+    // verifica o resultado da requisição
     if(!$resultado){
         return;
     }
 
+    // devolve para o js
     echo json_encode($resultado);
-
 }
 
 function packageShow(){
+    // guarda as variáveis do post dentro da função
+    extract($_POST);
 
-    $url = $_POST['url'] ?? $_GET['url'] ?? '';
-    $id  = $_POST['id']  ?? $_GET['id']  ?? '';
+    // monta a url da api do ckan que busca os dados do package
+    $api = $url . '/api/3/action/package_show?id=' . urlencode($id);
 
-    if(empty($url) || empty($id)){
-        echo json_encode([
-            "erro" => "URL ou Package ID não informado."
-        ]);
-        return;
-    }
-
-    $url_obj = parse_url($url);
-
-    $api = $url_obj['scheme'] .
-           '://' .
-           $url_obj['host'] .
-           '/api/3/action/package_show?id=' .
-           urlencode($id);
-
+    // chama a função que faz a requisição e guarda o resultado
     $resultado = requisicaoCKAN($api);
 
+    // verifica o resultado da requisição
     if(!$resultado){
         return;
     }
 
+    // devolve para o js
     echo json_encode($resultado);
-
 }
 
-function requisicaoCKAN(string $url){
+// função que faz a requisição ckan
+function requisicaoCKAN($url){
 
+    // inica a requisição
     $ch = curl_init($url);
-
+    
+    // configura a requisição (retorna a resposta, segue redirecionamentos e identifica a aplicação)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Agade Software');
 
+    // desativa a verificação do certificado SSL (TEMPORARIAMENTE!!!! VER ISSO AQUI DEPOIS!!!!) 
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
+    // executa a requisição
     $json = curl_exec($ch);
 
+    // verifica se houve erro na requisição
     if(curl_errno($ch)){
-
         echo json_encode([
             "erro" => curl_error($ch)
         ]);
-
         curl_close($ch);
         return null;
     }
 
+    // encerra o cURL
     curl_close($ch);
 
+    // converte a resposta em um array e devolve para quem chamou
     return json_decode($json, true);
 
 }
