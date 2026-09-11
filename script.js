@@ -104,7 +104,7 @@ function carregarResources(package_id, painel, url) {
         },
 
         function(resposta) {
-            console.log(resposta);
+            //console.log(resposta);
 
             if (!resposta.success) {
                 painel.html(
@@ -127,7 +127,7 @@ function carregarResources(package_id, painel, url) {
             const lista = $("<ul></ul>");
 
             pkg.resources.forEach(function(resource) {
-                console.log(resource);
+                //console.log(resource);
                 
                 lista.append(`
                     <li>
@@ -139,8 +139,7 @@ function carregarResources(package_id, painel, url) {
                             data-url="${resource.url}"
                             data-nome="${resource.name}"
                             data-ultima-atualizacao="${resource.last_modified}"
-                            data-delimitador=";">
-
+                            data-delimitador=";">                            
                         <span>
                             ${resource.name} (${resource.format})
                         </span>
@@ -263,17 +262,46 @@ $("#submit").on("click", function(event) {
         const checkbox = $(this);
 
         dados.resources.push({
+            id_base: $("#id_base").val(),
             resource_id: checkbox.val(),
             package_id: checkbox.data("package-id"),
             url: checkbox.data("url"),
             nome: checkbox.data("nome"),
             ultima_atualizacao: checkbox.data("ultima-atualizacao").substring(0, 10),
-            delimitador: checkbox.data("delimitador")
+            delimitador: ";"
         });
 
     });
 
     console.log(dados);
+
+    $.post(
+        "script.php",
+        {
+            acao: "criarBasesFontes",
+            dados: JSON.stringify(dados)
+        },
+        function(resposta) {
+
+            console.log(resposta);
+
+            if (resposta.success) {
+                alert("Base e fontes criadas com sucesso!");
+            } else {
+                alert("Erro ao criar base e fontes.");
+                console.log(resposta.erro);
+            }
+
+        },
+        "json"
+    ).fail(function(xhr, status, error) {
+
+        console.log("Erro ao enviar os dados");
+        console.log("Status:", status);
+        console.log("Erro:", error);
+        console.log("Resposta do PHP:", xhr.responseText);
+
+    });
 
 });
 

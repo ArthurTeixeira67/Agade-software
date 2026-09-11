@@ -1,8 +1,14 @@
 <?php
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 require_once 'config.php';
 
 header('Content-Type: application/json');
+
+// extract(_POST);
+// $acao
 
 $acao = $_POST['acao'] ?? $_GET['acao'] ?? '';
 
@@ -115,7 +121,125 @@ function requisicaoCKAN(string $url){
 }
 
 function criarBasesFontes($conn) {
-    
-}
 
-?>
+    $dados = $_POST['dados'] ?? '';
+
+    if(empty($dados)){
+        echo json_encode([
+            "erro" => "Dados não enviados."
+        ]);
+        return;
+    }
+
+    $dados = json_decode($dados, true);
+
+    if(!$dados){
+        echo json_encode([
+            "erro" => "Erro ao interpretar os dados."
+        ]);
+        return;
+    }
+
+    pg_query($conn, "BEGIN");
+
+    $sql_base = "
+        INSERT INTO agade_software.bases
+        (
+            id_base,
+            nome,
+            descricao,
+            tabela_destino,
+            fonte,
+            fonte_link,
+            fonte_api
+        )
+        VALUES
+        (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7
+        )
+    ";
+
+    $resultado = pg_query_params($conn, $sql_base, [
+        $dados['id_base'],
+        $dados['nome'],
+        $dados['descricao'],
+        $dados['tabela_destino'],
+        $dados['fonte'],
+        $dados['fonte_link'],
+        $dados['fonte_api']
+    ]);
+
+    if(!$resultado){
+
+        pg_query($conn, "ROLLBACK");
+
+        echo json_encode([
+            "erro" => "Erro ao inserir a base.",
+            "detalhes" => pg_last_error($conn)
+        ]);
+
+        return;
+    }
+
+    $sql_fonte = "
+        INSERT INTO agade_software.fontes
+        (
+            resource_id,
+            url,
+            nome,
+            ultima_atualizacao,
+            package_id,
+            delimitador,
+            id_base
+        )
+        VALUES
+        (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7
+        )
+    ";
+
+    foreach($dados['resources'] as $resource){
+
+        $resultado = pg_query_params($conn, $sql_fonte, [
+            $resource['resource_id'],
+            $resource['url'],
+            $resource['nome'],
+            $resource['ultima_atualizacao'],
+            $resource['package_id'],
+            $resource['delimitador'],
+            $resource['id_base']
+        ]);
+
+        if(!$resultado){
+
+            pg_query($conn, "ROLLBACK");
+
+            echo json_encode([
+                "erro" => "Erro ao inserir um resource.",
+                "resource_id" => $resource['resource_id'],
+                "detalhes" => pg_last_error($conn)
+            ]);
+
+            return;
+        }
+    }
+
+    pg_query($conn, "COMMIT");
+
+    echo json_encode([
+        "success" => true,
+        "mensagem" => "Base e fontes inseridas com sucesso."
+    ]);
+}
