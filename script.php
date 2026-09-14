@@ -13,7 +13,7 @@ header('Content-Type: application/json');
 // coleta e guarda os valores enviados pelo js
 extract($_POST);
 
-// chama a função que o js mandar
+//chama a função que o js mandar
 switch ($acao) {
 
     case 'listarPackages':
@@ -28,7 +28,7 @@ switch ($acao) {
         criarBasesFontes($conn);
         break;
 
-    // caso a ação seja inválida (ver se pode tirar ae)
+    // caso a ação seja inválida
     default:
         echo json_encode([
             "erro" => "Ação inválida."
@@ -37,7 +37,7 @@ switch ($acao) {
 }
 
 // função que vai listar os packages
-function listarPackages(){  
+function listarPackages(){
     // guarda as variáveis do post dentro da função
     extract($_POST);
 
@@ -76,17 +76,15 @@ function packageShow(){
 }
 
 // função que faz a requisição ckan
-function requisicaoCKAN($url){
-
-    // inica a requisição
+function requisicaoCKAN(string $url){
+    // inicia a requisição
     $ch = curl_init($url);
-    
-    // configura a requisição (retorna a resposta, segue redirecionamentos e identifica a aplicação)
+
+    // configura a requisição
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Agade Software');
-
-    // desativa a verificação do certificado SSL (TEMPORARIAMENTE!!!! VER ISSO AQUI DEPOIS!!!!) 
+    // desativa a verificação do certificado SSL (TEMPORÁRIO)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
@@ -107,13 +105,13 @@ function requisicaoCKAN($url){
 
     // converte a resposta em um array e devolve para quem chamou
     return json_decode($json, true);
-
 }
 
 function criarBasesFontes($conn) {
+    // guarda as variáveis do post dentro da função
+    extract($_POST);
 
-    $dados = $_POST['dados'] ?? '';
-
+    // verifica se php recebeu os dados (ver se realmente precisa)
     if(empty($dados)){
         echo json_encode([
             "erro" => "Dados não enviados."
@@ -121,8 +119,10 @@ function criarBasesFontes($conn) {
         return;
     }
 
+    // transforma os dados em um array associativo do php
     $dados = json_decode($dados, true);
 
+    // verifica se o php conseguiu converter os dados do js
     if(!$dados){
         echo json_encode([
             "erro" => "Erro ao interpretar os dados."
@@ -130,12 +130,13 @@ function criarBasesFontes($conn) {
         return;
     }
 
+    // Inicia a transação
     pg_query($conn, "BEGIN");
 
+    // cria o script de inserir a base e pegar o id_base gerado
     $sql_base = "
         INSERT INTO agade_software.bases
         (
-            id_base,
             nome,
             descricao,
             tabela_destino,
@@ -150,13 +151,13 @@ function criarBasesFontes($conn) {
             $3,
             $4,
             $5,
-            $6,
-            $7
+            $6
         )
+        RETURNING id_base
     ";
 
+    // executa o script com os dados que o js mandou
     $resultado = pg_query_params($conn, $sql_base, [
-        $dados['id_base'],
         $dados['nome'],
         $dados['descricao'],
         $dados['tabela_destino'],
@@ -165,18 +166,20 @@ function criarBasesFontes($conn) {
         $dados['fonte_api']
     ]);
 
+    // guarda o id_base
+    $id_base = pg_fetch_result($resultado, 0, 'id_base');
+
+    // verifica se o insert funcionou
     if(!$resultado){
-
         pg_query($conn, "ROLLBACK");
-
         echo json_encode([
             "erro" => "Erro ao inserir a base.",
             "detalhes" => pg_last_error($conn)
         ]);
-
         return;
-    }
+    };
 
+    // monta o script para inserir as fontes
     $sql_fonte = "
         INSERT INTO agade_software.fontes
         (
@@ -200,8 +203,8 @@ function criarBasesFontes($conn) {
         )
     ";
 
+    // executa o insert da fonte com cada resource selecionado
     foreach($dados['resources'] as $resource){
-
         $resultado = pg_query_params($conn, $sql_fonte, [
             $resource['resource_id'],
             $resource['url'],
@@ -209,23 +212,22 @@ function criarBasesFontes($conn) {
             $resource['ultima_atualizacao'],
             $resource['package_id'],
             $resource['delimitador'],
-            $resource['id_base']
+            $id_base
         ]);
 
+        // verifica se algum insert de resource falhou
         if(!$resultado){
-
             pg_query($conn, "ROLLBACK");
-
             echo json_encode([
                 "erro" => "Erro ao inserir um resource.",
                 "resource_id" => $resource['resource_id'],
                 "detalhes" => pg_last_error($conn)
             ]);
-
             return;
         }
     }
 
+    // Confirma todas as inserções
     pg_query($conn, "COMMIT");
 
     echo json_encode([
@@ -233,3 +235,5 @@ function criarBasesFontes($conn) {
         "mensagem" => "Base e fontes inseridas com sucesso."
     ]);
 }
+
+?>

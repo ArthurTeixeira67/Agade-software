@@ -17,9 +17,8 @@ btn_listar.on("click", carregarPackages);
 // função que carrega os packages
 function carregarPackages() {
     // guarda a url digitada pelo usuário
-    url = input_url.val();
+    const url = input_url.val();
 
-    // verifica se o usuário digitou uma url
     if (!url) {
         alert("Por favor insira uma URL.");
         return;
@@ -40,7 +39,7 @@ function carregarPackages() {
         function(resposta) {
             // guarda o resultado da requisição ckan
             packages_carregados = resposta.result;
-            // monta os accordeons com o resultado e mostra a caixa de busca
+            // monta os accordion com o resultado e mostra a caixa de busca
             montarAccordion(resposta.result, url);
             busca_package.show();
         },
@@ -60,13 +59,13 @@ function carregarPackages() {
 }
 
 function montarAccordion(package_ids, url) {
-    // limpa o local que os accordions aparecem (caso haja uma outra requisição)
+    // limpa o local que os accordions aparecem caso haja uma outra requisição
     lista_package_resource.empty();
 
     // cria e guarda a div dos accordions
     const accordion = $('<div id="accordion"></div>');
 
-    // adiciona os accordions na pagina
+    // adiciona os accordions na div onde eles devem ficar
     lista_package_resource.append(accordion);
 
     // para cada package carregado, pega o nome e o id
@@ -89,7 +88,7 @@ function montarAccordion(package_ids, url) {
         accordion.append(conteudo);
     });
 
-    // configura como os accordions vão aparecer (fechados e do tamanho do conteúdo)
+    // configura como os accordions vão aparecer
     $("#accordion").accordion({
         collapsible: true,
         active: false,
@@ -112,7 +111,7 @@ function montarAccordion(package_ids, url) {
     });
 }
 
-// função que carrega os resources do package selecionado
+// função que carrega o resources
 function carregarResources(package_id, painel, url) {
     // evita fazer a mesma requisição novamente
     if (painel.data("carregado")) {
@@ -129,9 +128,8 @@ function carregarResources(package_id, painel, url) {
             id: package_id
         },
 
+        // recebe a resposta e verifica se deu certo (ver se da pra tirar isso dps)
         function(resposta) {
-            console.log(resposta);
-
             if (!resposta.success) {
                 painel.html(
                     "<p>Erro ao carregar os resources.</p>"
@@ -140,21 +138,25 @@ function carregarResources(package_id, painel, url) {
                 return;
             }
 
+            // guarda a resposta da requisição
             const pkg = resposta.result;
 
+            // remove a mensagem de carregando os resources
             painel.empty();
 
+            // cria o botão selecionar todos os packages
             const botao = $(`
                 <button type="button" class="btn-selecionar-todos">
                     Selecionar todos os resources
                 </button>
             `);
 
+            // cria a lista em que os resources serão adiconados
             const lista = $("<ul></ul>");
 
+            // para cada resource:
             pkg.resources.forEach(function(resource) {
-                //console.log(resource);
-                
+                // cria um item de lista para cada metadado carregado e mostra apenas a caixa seletora e o titulo do resource
                 lista.append(`
                     <li>
                         <input
@@ -165,7 +167,8 @@ function carregarResources(package_id, painel, url) {
                             data-url="${resource.url}"
                             data-nome="${resource.name}"
                             data-ultima-atualizacao="${resource.last_modified}"
-                            data-delimitador=";">                            
+                            data-delimitador=";">
+
                         <span>
                             ${resource.name} (${resource.format})
                         </span>
@@ -173,9 +176,11 @@ function carregarResources(package_id, painel, url) {
                 `);
             });
 
+            // adiciona o botão e os resources na página
             painel.append(botao);
             painel.append(lista);
 
+            // atualiza o botão dependendo da quantidade de resources selecionados
             function atualizarBotao() {
                 const checkboxes =
                     painel.find("input[type=checkbox]");
@@ -183,7 +188,7 @@ function carregarResources(package_id, painel, url) {
                     checkboxes.length > 0 &&
                     checkboxes.length ===
                     checkboxes.filter(":checked").length;
-
+                // variações do botão
                 botao.text(
                     todosMarcados
                         ? "Desmarcar todos os resources"
@@ -191,6 +196,7 @@ function carregarResources(package_id, painel, url) {
                 );
             }
 
+            // função que faz o botão fazer o que faz e mudar a cada clique
             botao.on("click", function() {
                 const checkboxes =
                     painel.find("input[type=checkbox]");
@@ -207,6 +213,7 @@ function carregarResources(package_id, painel, url) {
                 atualizarBotao();
             });
 
+            // caso o usuário desmarque um botão individualmente, muda o botão
             painel.find("input[type=checkbox]").on(
                 "change",
                 function() {
@@ -214,40 +221,44 @@ function carregarResources(package_id, painel, url) {
                 }
             );
 
+            // marca o conteúdo do accordion escolhido para que não seja necessário carregar novamente
             painel.data("carregado", true);
 
+            // atualiza o accordion após as alterações
             $("#accordion").accordion("refresh");
-
         },
 
+        // informa o js para tratar a resposta como json
         "json"
 
+    // exibe mensagem de erro caso não consiga contatar o php
     ).fail(function(xhr, status, error) {
         console.log("Erro ao carregar resources");
         console.log(error);
-
         painel.html(
-            "<p>Erro ao carregar os resources.</p>"
+            "<p>Erro ao carregar resources.</p>"
         );
     });
 }
 
+// sempre que o conteúdo do campo de busca mudar, filtra os packages
 input_busca_package.on("input", function() {
-    const busca = $(this).val().toLowerCase().trim();
-
+    const busca = $(this).val().toLowerCase();
+    // salva os packages filtrados
     const packages_filtrados = packages_carregados.filter(function(package_id) {
         return package_id.toLowerCase().includes(busca);
     });
-
+    // montar os accordions com os packages filtrados
     montarAccordion(packages_filtrados, url);
 });
 
+// ao clicar em criar bases e fontes:
 $("#submit").on("click", function(event) {
-
+    // envia os dados para o php sem recarregar a página
     event.preventDefault();
 
+    // salva os campos dos metadados da base
     const campos = [
-        $("#id_base"),
         $("#nome"),
         $("#descricao"),
         $("#tabela_destino"),
@@ -256,24 +267,25 @@ $("#submit").on("click", function(event) {
         $("#fonte_api")
     ];
 
+    // define que o form está válido enquanto não houve a verificação
     let valido = true;
 
+    // para cada campo do formulário, verifica se está preenchido
     campos.forEach(function(campo) {
-
-        if (!campo.val().trim()) {
+        if (!campo.val()) {
             campo.css("border", "2px solid red");
             valido = false;
         }
-
     });
 
+    // impede o envio caso algum campo esteja vazio e mostra uma mensagem
     if (!valido) {
         alert("Preencha todos os campos obrigatórios.");
         return;
     }
 
+    // valores digitados pelo usuário nos campos e lista vazia para guardar os dados dos resources selecionados
     const dados = {
-        id_base: $("#id_base").val(),
         nome: $("#nome").val(),
         descricao: $("#descricao").val(),
         tabela_destino: $("#tabela_destino").val(),
@@ -283,57 +295,51 @@ $("#submit").on("click", function(event) {
         resources: []
     };
 
+    // para cada resource selecionado, pegar os dados necessários e adicionar na lista resources em "dados"
     $("#lista-package-resource input[name='resources[]']:checked").each(function() {
-
         const checkbox = $(this);
-
         dados.resources.push({
-            id_base: $("#id_base").val(),
             resource_id: checkbox.val(),
             package_id: checkbox.data("package-id"),
             url: checkbox.data("url"),
             nome: checkbox.data("nome"),
             ultima_atualizacao: checkbox.data("ultima-atualizacao").substring(0, 10),
-            delimitador: ";"
+            delimitador: checkbox.data("delimitador")
         });
-
     });
 
-    console.log(dados);
-
     $.post(
+        // envia para o php a ação que deve ser feita e os dados a serem utilizados
         "script.php",
         {
             acao: "criarBasesFontes",
             dados: JSON.stringify(dados)
         },
+
+        // mostra o resultado do criar bases e fontes
         function(resposta) {
-
             console.log(resposta);
-
             if (resposta.success) {
                 alert("Base e fontes criadas com sucesso!");
             } else {
                 alert("Erro ao criar base e fontes.");
                 console.log(resposta.erro);
             }
-
         },
+
+        // informa o js para tratar a resposta como json
         "json"
+
+        // caso js não consiga enviar os dados
     ).fail(function(xhr, status, error) {
-
         console.log("Erro ao enviar os dados");
-        console.log("Status:", status);
-        console.log("Erro:", error);
-        console.log("Resposta do PHP:", xhr.responseText);
-
+        console.log(error);
     });
-
 });
 
-$("#id_base, #nome, #descricao, #tabela_destino, #fonte, #fonte_link, #fonte_api").on("input", function() {
-
-    if ($(this).val().trim()) {
+// remover borda vermelha após o usuário preencher o que não foi preenchido
+$("#nome, #descricao, #tabela_destino, #fonte, #fonte_api").on("input", function() {
+    if ($(this).val()) {
         $(this).css("border", "");
     }
 });
