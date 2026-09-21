@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="style.css">
+    <title>Agadê Software</title>
+</head>
+<body>
+	<h1 class="title">Agadê Software</h1>
+	
+	<form action="" class="form">
+		<!-- dados p/ etl.bases -->
+		<div class="form1">
+			<label for="nome">nome:</label>
+			<input type="text" id="nome">
+		
+			<label for="descricao">descrição:</label>
+			<textarea id="descricao" rows="5" cols="30"></textarea>
+	
+			<label for="tabela_destino">tabela_destino:</label>
+			<input type="text" id="tabela_destino">
+	
+			<label for="fonte">fonte:</label>
+			<input type="text" id="fonte">
+	
+			<label for="fonte_link">fonte_link:</label>
+			<input type="url" id="fonte_link">
+	
+			<label for="fonte_api">fonte_api:</label>
+			<input type="url" id="fonte_api">
+		</div>
+		
+		<!-- busca API CKAN -->
+		<div class="list">
+		<label for="url_package">Url:</label>
+			<div class="form2">
+				<!-- buscar packages -->
+				<input type="text" id="url_package">
+				<button class="btn" id="btn_package" type="button">Listar package's</button>
+				
+				<section id="accordion"></section>
+				
+				<!-- enviar dados -->
+				<input type="submit" id="submit_form" class="btn" value="Criar bases e fontes">
+			</div>
+		</div>
+	</form>
+	
+	
+</body>
+</html>
